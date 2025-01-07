@@ -2,7 +2,7 @@ import express from 'express'
 import usersRouter from '~/routes/users.router'
 import databaseService from '~/services/database.services'
 const app = express()
-const PORT = 3000
+const PORT = 4000
 
 app.use(express.json())
 
