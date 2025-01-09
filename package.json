@@ -33,9 +33,11 @@
   },
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/lodash": "^4.17.14",
     "dotenv": "^16.4.7",
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "mongodb": "^6.12.0"
   }
 }
