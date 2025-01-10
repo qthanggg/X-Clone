@@ -9,6 +9,7 @@ import usersService from '~/services/users.services'
 import { hashPassword } from '~/utils/crypto'
 import { verifyToken } from '~/utils/jwt'
 import { validate } from '~/utils/validation'
+import { Request, Response, NextFunction } from 'express'
 
 export const loginValidator = validate(
   checkSchema(
@@ -219,6 +220,12 @@ export const refreshTokenValidator = validate(
               if (refresh_token === null) {
                 throw new ErrorWithStatus({
                   message: USER_MESSAGES.USED_REFRESH_TOKEN_OR_NOT_EXIST,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
+              if (!decoded_refresh_token) {
+                throw new ErrorWithStatus({
+                  message: USER_MESSAGES.REFRESH_TOKEN_IS_INVALID,
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }

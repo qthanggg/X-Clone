@@ -60,13 +60,7 @@ class UsersService {
     return { message: USER_MESSAGES.LOGOUT_SUCCESS }
   }
   // refresh token
-  async refreshToken({
-    refresh_token,
-    decoded_refresh_token
-  }: {
-    refresh_token: string
-    decoded_refresh_token: TokenPayload
-  }) {
+  async refreshToken({ refresh_token, decoded_refresh_token }: { refresh_token: string; decoded_refresh_token: any }) {
     const { user_id } = decoded_refresh_token
     const [new_access_token, new_refresh_token] = await this.signAcessAndRefreshToken(user_id)
     await databaseService.refreshTokens.deleteOne({ token: refresh_token })
