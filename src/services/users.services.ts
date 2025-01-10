@@ -1,7 +1,8 @@
 import { config } from 'dotenv'
 import { ObjectId } from 'mongodb'
 import { TokenType } from '~/constants/enum'
-import { RegisterRequestBody } from '~/models/request/User.request'
+import { USER_MESSAGES } from '~/constants/messages'
+import { RegisterRequestBody, TokenPayload } from '~/models/request/User.request'
 import RefreshToken from '~/models/schemas/RefreshToken.schemas'
 import User from '~/models/schemas/User.schemas'
 import databaseService from '~/services/database.services'
@@ -52,6 +53,30 @@ class UsersService {
   async checkEmailExist(email: string) {
     const user = await databaseService.users.findOne({ email })
     return Boolean(user)
+  }
+  // logout
+  async logout(refresh_token: string) {
+    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    return { message: USER_MESSAGES.LOGOUT_SUCCESS }
+  }
+  // refresh token
+  async refreshToken({
+    refresh_token,
+    decoded_refresh_token
+  }: {
+    refresh_token: string
+    decoded_refresh_token: TokenPayload
+  }) {
+    const { user_id } = decoded_refresh_token
+    const [new_access_token, new_refresh_token] = await this.signAcessAndRefreshToken(user_id)
+    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ user_id: new ObjectId(user_id), token: new_refresh_token })
+    )
+    return {
+      access_token: new_access_token,
+      refresh_token: new_refresh_token
+    }
   }
 }
 
