@@ -8,8 +8,15 @@ export interface RegisterRequestBody {
   date_of_birth: string
   name: string
 }
+export interface LoginRequestBody {
+  email: string
+  password: string
+}
 export interface LogoutRequestBody {
   refresh_token: string
+}
+export interface ResendVerifyEmailRequestBody {
+  email_verify_token: string
 }
 
 export interface RefreshTokenRequestBody {

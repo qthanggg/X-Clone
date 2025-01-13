@@ -30,5 +30,11 @@ export const USER_MESSAGES = {
   REFRESH_TOKEN_MUST_BE_A_STRING: 'Refresh token must be a string',
   USED_REFRESH_TOKEN_OR_NOT_EXIST: 'Used refresh token or not exist',
   REFRESH_TOKEN_NOT_EXIST: 'Refresh token not exist',
-  REFRESH_TOKEN_SUCCESS: 'Refresh token success'
+  REFRESH_TOKEN_SUCCESS: 'Refresh token success',
+  EMAIL_VERIFY_TOKEN_IS_REQUIRED: 'Email verify token is required',
+  EMAIL_VERIFY_TOKEN_MUST_BE_A_STRING: 'Email verify token must be a string',
+  EMAIL_VERIFY_TOKEN_NOT_EXIST: 'Email verify token not exist',
+  EMAIL_VERIFY_TOKEN_SUCCESS: 'Email verify token success',
+  EMAIL_ALREADY_VERIFIED: 'Email already verified',
+  RESEND_VERIFY_EMAIL_SUCCESS: 'Resend verify email success'
 } as const

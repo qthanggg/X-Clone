@@ -1,20 +1,27 @@
 import { Request, Response, NextFunction } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
+import { UserVerifyStatus } from '~/constants/enum'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USER_MESSAGES } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Errors'
-import { LogoutRequestBody, RefreshTokenRequestBody, RegisterRequestBody } from '~/models/request/User.request'
+import {
+  LoginRequestBody,
+  LogoutRequestBody,
+  RegisterRequestBody,
+  ResendVerifyEmailRequestBody,
+  TokenPayload
+} from '~/models/request/User.request'
 import User from '~/models/schemas/User.schemas'
+import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
 
 // login
-export const loginController = async (req: Request, res: Response) => {
+export const loginController = async (req: Request<ParamsDictionary, any, LoginRequestBody>, res: Response) => {
   const user = req.user as User
   const user_id = user._id as ObjectId
-
   const result = await usersService.login(user_id.toString())
-  res.status(200).json({ message: USER_MESSAGES.LOGIN_SUCCESS, result })
+  res.json({ message: USER_MESSAGES.LOGIN_SUCCESS, result })
 }
 
 // register
@@ -24,15 +31,15 @@ export const registerController = async (
   next: NextFunction
 ) => {
   const result = await usersService.register(req.body)
-  res.status(200).json({ message: USER_MESSAGES.REGISTER_SUCCESS, result })
+  res.json({ message: USER_MESSAGES.REGISTER_SUCCESS, result })
 }
 // logout
 export const logoutController = async (req: Request<ParamsDictionary, any, LogoutRequestBody>, res: Response) => {
   const { refresh_token } = req.body
   await usersService.logout(refresh_token)
-  res.status(200).json({ message: USER_MESSAGES.LOGOUT_SUCCESS })
+  res.json({ message: USER_MESSAGES.LOGOUT_SUCCESS })
 }
-
+// refresh token
 export const refreshTokenController = async (req: Request, res: Response) => {
   const { refresh_token } = req.body
   const { decoded_refresh_token } = req
@@ -41,4 +48,42 @@ export const refreshTokenController = async (req: Request, res: Response) => {
     message: USER_MESSAGES.REFRESH_TOKEN_SUCCESS,
     result
   })
+}
+// verify email
+export const verifyEmailController = async (req: Request, res: Response) => {
+  const { user_id } = req.decoded_email_verify_token as TokenPayload
+  const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+  // User not found
+  if (!user) {
+    throw new ErrorWithStatus({
+      message: USER_MESSAGES.USER_NOT_FOUND,
+      status: HTTP_STATUS.NOT_FOUND
+    })
+  }
+
+  // Verified email, return message "Email already verified"
+  if (user.email_verify_token === '') {
+    res.json({ message: USER_MESSAGES.EMAIL_ALREADY_VERIFIED })
+  }
+  const result = await usersService.verifyEmail(user_id)
+  res.json({ message: USER_MESSAGES.EMAIL_VERIFY_TOKEN_SUCCESS, result })
+}
+// resend verify email
+export const resendVerifyEmailController = async (
+  req: Request<ParamsDictionary, any, ResendVerifyEmailRequestBody>,
+  res: Response
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+  if (!user) {
+    throw new ErrorWithStatus({
+      message: USER_MESSAGES.USER_NOT_FOUND,
+      status: HTTP_STATUS.NOT_FOUND
+    })
+  }
+  if (user.verify === UserVerifyStatus.Verified) {
+    res.json({ message: USER_MESSAGES.EMAIL_ALREADY_VERIFIED })
+  }
+  const result = await usersService.resendVerifyEmail(user_id)
+  res.json({ message: result })
 }
