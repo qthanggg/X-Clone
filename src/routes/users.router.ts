@@ -5,14 +5,20 @@ import {
   refreshTokenController,
   registerController,
   resendVerifyEmailController,
-  verifyEmailController
+  verifyEmailController,
+  forgotPasswordController,
+  verifyForgotPasswordController,
+  resetPasswordController
 } from '~/controllers/users.controllers'
 import {
   accessTokenValidator,
   emailVerifyTokenValidator,
+  forgotPasswordValidator,
   loginValidator,
   refreshTokenValidator,
-  registerValidator
+  registerValidator,
+  resetPasswordValidator,
+  verifyForgotPasswordValidator
 } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
@@ -48,7 +54,7 @@ usersRouter.post('/refresh-token', refreshTokenValidator, wrapRequestHandler(ref
 /**
  * Description: Verify email when user click on link in email
  * Path: /verify-email
- * Method: POST
+ * Method: GET
  * Body: { email_verify_token }
  */
 usersRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(verifyEmailController))
@@ -59,5 +65,29 @@ usersRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(
  * Body: { }
  */
 usersRouter.post('/resend-verify-email', accessTokenValidator, wrapRequestHandler(resendVerifyEmailController))
-
+/**
+ * Description: Forgot password
+ * Path: /forgot-password
+ * Method: POST
+ * Body: { email: string }
+ */
+usersRouter.post('/forgot-password', forgotPasswordValidator, wrapRequestHandler(forgotPasswordController))
+/**
+ * Description: Verify link in email to reset password
+ * Path: /verify-forgot-password
+ * Method: POST
+ * Body: { forgot_password_token: string }
+ */
+usersRouter.post(
+  '/verify-forgot-password',
+  verifyForgotPasswordValidator,
+  wrapRequestHandler(verifyForgotPasswordController)
+)
+/**
+ * Description: Reset password
+ * Path: /reset-password
+ * Method: POST
+ * Body: { password: string }
+ */
+usersRouter.post('/reset-password', resetPasswordValidator, wrapRequestHandler(resetPasswordController))
 export default usersRouter
