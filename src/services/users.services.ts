@@ -56,7 +56,9 @@ class UsersService {
   async register(payload: RegisterRequestBody) {
     const user_id = new ObjectId()
     const email_verify_token = await this.signEmailVerifyToken(user_id.toString())
-    const user = await databaseService.users.insertOne(
+
+    // Tạo user mới
+    await databaseService.users.insertOne(
       new User({
         ...payload,
         _id: user_id,
@@ -126,10 +128,7 @@ class UsersService {
     await databaseService.users.updateOne(
       { _id: new ObjectId(user_id) },
       {
-        $set: { email_verify_token },
-        $currentDate: {
-          update_at: true
-        }
+        $set: { email_verify_token }
       }
     )
     return USER_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS
@@ -149,9 +148,7 @@ class UsersService {
       { _id: new ObjectId(user_id) },
       {
         $set: { forgot_password_token },
-        $currentDate: {
-          updated_at: true
-        }
+        $currentDate: { updated_at: true }
       }
     )
 
@@ -178,6 +175,9 @@ class UsersService {
       }
     )
     return USER_MESSAGES.RESET_PASSWORD_SUCCESS
+  }
+  public createEmailVerifyToken(user_id: string) {
+    return this.signEmailVerifyToken(user_id)
   }
 }
 

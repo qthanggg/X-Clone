@@ -9,15 +9,18 @@ import {
   ForgotPasswordRequestBody,
   LoginRequestBody,
   LogoutRequestBody,
+  RefreshTokenRequestBody,
   RegisterRequestBody,
   ResendVerifyEmailRequestBody,
   ResetPasswordRequestBody,
   TokenPayload,
+  VerifyEmailRequestBody,
   VerifyForgotPasswordRequestBody
 } from '~/models/request/User.request'
 import User from '~/models/schemas/User.schemas'
 import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
+import emailService from '~/services/email.services'
 
 // login
 export const loginController = async (req: Request<ParamsDictionary, any, LoginRequestBody>, res: Response) => {
@@ -43,7 +46,10 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
   res.json({ message: USER_MESSAGES.LOGOUT_SUCCESS })
 }
 // refresh token
-export const refreshTokenController = async (req: Request, res: Response) => {
+export const refreshTokenController = async (
+  req: Request<ParamsDictionary, any, RefreshTokenRequestBody>,
+  res: Response
+) => {
   const { refresh_token } = req.body
   const { decoded_refresh_token } = req
   const result = await usersService.refreshToken({ refresh_token, decoded_refresh_token })
@@ -53,7 +59,10 @@ export const refreshTokenController = async (req: Request, res: Response) => {
   })
 }
 // verify email
-export const verifyEmailController = async (req: Request, res: Response) => {
+export const verifyEmailController = async (
+  req: Request<ParamsDictionary, any, VerifyEmailRequestBody>,
+  res: Response
+) => {
   const { user_id } = req.decoded_email_verify_token as TokenPayload
   const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
   // User not found
@@ -87,8 +96,15 @@ export const resendVerifyEmailController = async (
   if (user.verify === UserVerifyStatus.Verified) {
     res.json({ message: USER_MESSAGES.EMAIL_ALREADY_VERIFIED })
   }
-  const result = await usersService.resendVerifyEmail(user_id)
-  res.json({ message: result })
+
+  // Gửi lại email verify
+  const email_verify_token = await usersService.createEmailVerifyToken(user_id)
+  await emailService.sendVerificationEmail({
+    to: user.email,
+    verifyToken: email_verify_token
+  })
+
+  res.json({ message: USER_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS })
 }
 // forgot password
 export const forgotPasswordController = async (

@@ -57,7 +57,7 @@ usersRouter.post('/refresh-token', refreshTokenValidator, wrapRequestHandler(ref
  * Method: GET
  * Body: { email_verify_token }
  */
-usersRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(verifyEmailController))
+usersRouter.get('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(verifyEmailController))
 /**
  * Description: Resend verify email
  * Path: /resend-verify-email

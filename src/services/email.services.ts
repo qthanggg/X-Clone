@@ -6,7 +6,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_ADDRESS,
-    pass: process.env.EMAIL_PASSWORD // Sử dụng App Password từ Google Account
+    pass: process.env.EMAIL_APP_PASSWORD // Sử dụng App Password từ Google Account
   }
 })
 
@@ -18,7 +18,7 @@ class EmailService {
   }
 
   async sendVerificationEmail({ to, verifyToken }: { to: string; verifyToken: string }) {
-    const verifyUrl = `${process.env.CLIENT_URL}/verify-email?token=${verifyToken}`
+    const verifyUrl = `${process.env.CLIENT_URL}/verify-email?email_verify_token=${verifyToken}`
 
     await this.transporter.sendMail({
       from: process.env.EMAIL_ADDRESS,
@@ -34,7 +34,7 @@ class EmailService {
   }
 
   async sendForgotPasswordEmail({ to, resetToken }: { to: string; resetToken: string }) {
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password?forgot_password_token=${resetToken}`
 
     await this.transporter.sendMail({
       from: process.env.EMAIL_ADDRESS,
@@ -44,7 +44,7 @@ class EmailService {
         <h2>Reset Your Password</h2>
         <p>Click the link below to reset your password:</p>
         <a href="${resetUrl}">${resetUrl}</a>
-        <p>This link will expire in 15 minutes.</p>
+      
         <p>If you didn't request this, please ignore this email.</p>
       `
     })

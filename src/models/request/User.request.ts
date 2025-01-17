@@ -22,6 +22,9 @@ export interface ResendVerifyEmailRequestBody {
 export interface RefreshTokenRequestBody {
   refresh_token: string
 }
+export interface VerifyEmailRequestBody {
+  email_verify_token: string
+}
 
 export interface TokenPayload extends JwtPayload {
   user_id: string

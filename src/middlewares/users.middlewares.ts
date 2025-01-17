@@ -301,18 +301,18 @@ export const emailVerifyTokenValidator = validate(
                 secretOrPublicKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string
               })
               ;(req as Request).decoded_email_verify_token = decoded_email_verify_token
-              return true
             } catch (error) {
               throw new ErrorWithStatus({
                 message: capitalize((error as JsonWebTokenError).message),
                 status: HTTP_STATUS.UNAUTHORIZED
               })
             }
+            return true
           }
         }
       }
     },
-    ['body']
+    ['query']
   )
 )
 export const forgotPasswordValidator = validate(
