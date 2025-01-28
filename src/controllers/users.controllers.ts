@@ -7,6 +7,7 @@ import { USER_MESSAGES } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Errors'
 import {
   ForgotPasswordRequestBody,
+  GetUserProfileRequestParams,
   LoginRequestBody,
   LogoutRequestBody,
   RefreshTokenRequestBody,
@@ -14,6 +15,7 @@ import {
   ResendVerifyEmailRequestBody,
   ResetPasswordRequestBody,
   TokenPayload,
+  UpdateMeRequestBody,
   VerifyEmailRequestBody,
   VerifyForgotPasswordRequestBody
 } from '~/models/request/User.request'
@@ -21,12 +23,13 @@ import User from '~/models/schemas/User.schemas'
 import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
 import emailService from '~/services/email.services'
+import { pick } from 'lodash'
 
 // login
 export const loginController = async (req: Request<ParamsDictionary, any, LoginRequestBody>, res: Response) => {
   const user = req.user as User
   const user_id = user._id as ObjectId
-  const result = await usersService.login(user_id.toString())
+  const result = await usersService.login({ user_id: user_id.toString(), verify: user.verify })
   res.json({ message: USER_MESSAGES.LOGIN_SUCCESS, result })
 }
 
@@ -98,7 +101,10 @@ export const resendVerifyEmailController = async (
   }
 
   // Gửi lại email verify
-  const email_verify_token = await usersService.createEmailVerifyToken(user_id)
+  const email_verify_token = await usersService.createEmailVerifyToken({
+    user_id: user_id.toString(),
+    verify: UserVerifyStatus.Unverified
+  })
   await emailService.sendVerificationEmail({
     to: user.email,
     verifyToken: email_verify_token
@@ -113,7 +119,10 @@ export const forgotPasswordController = async (
   next: NextFunction
 ) => {
   const { _id } = req.user as User
-  const result = await usersService.forgotPassword((_id as ObjectId).toString())
+  const result = await usersService.forgotPassword({
+    user_id: (_id as ObjectId).toString(),
+    verify: UserVerifyStatus.Verified
+  })
   res.json({ message: result })
 }
 // verify forgot password
@@ -133,4 +142,32 @@ export const resetPasswordController = async (
   const { password } = req.body
   const result = await usersService.resetPassword(user_id, password)
   res.json({ message: result })
+}
+// get me
+export const getMeController = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const user = await usersService.getUserProfile(user_id)
+  res.json({ message: USER_MESSAGES.GET_ME_SUCCESS, result: user })
+}
+// get user profile by username
+export const getUserProfileController = async (
+  req: Request<GetUserProfileRequestParams>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { username } = req.params
+  const user = await usersService.getUserProfile(username)
+  res.json({ message: USER_MESSAGES.GET_PROFILE_SUCCESS, result: user })
+}
+// update me
+export const updateMeController = async (
+  req: Request<ParamsDictionary, any, UpdateMeRequestBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { body } = req
+  console.log(body)
+  const result = await usersService.updateMe(user_id, body)
+  res.json({ message: USER_MESSAGES.UPDATE_ME_SUCCESS, result })
 }

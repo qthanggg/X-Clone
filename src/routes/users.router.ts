@@ -8,8 +8,12 @@ import {
   verifyEmailController,
   forgotPasswordController,
   verifyForgotPasswordController,
-  resetPasswordController
+  resetPasswordController,
+  getMeController,
+  updateMeController,
+  getUserProfileController
 } from '~/controllers/users.controllers'
+import { fillterMiddleware } from '~/middlewares/common.middleware'
 import {
   accessTokenValidator,
   emailVerifyTokenValidator,
@@ -18,8 +22,11 @@ import {
   refreshTokenValidator,
   registerValidator,
   resetPasswordValidator,
-  verifyForgotPasswordValidator
+  updateMeValidator,
+  verifyForgotPasswordValidator,
+  verifyUserValidator
 } from '~/middlewares/users.middlewares'
+import { UpdateMeRequestBody } from '~/models/request/User.request'
 import { wrapRequestHandler } from '~/utils/handlers'
 
 const usersRouter = Router()
@@ -90,4 +97,44 @@ usersRouter.post(
  * Body: { password: string }
  */
 usersRouter.post('/reset-password', resetPasswordValidator, wrapRequestHandler(resetPasswordController))
+/**
+ * Description: Get user profile
+ * Path: /me
+ * Method: GET
+ * Body:  { Authozation: Bearer <access_token> }
+ */
+usersRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
+/**
+ * Description: Get user profile
+ * Path: /me
+ * Method: GET
+ * Body: { Authozation: Bearer <access_token> }
+ * Body: User schema
+ */
+usersRouter.patch(
+  '/me',
+  accessTokenValidator,
+  verifyUserValidator,
+  updateMeValidator,
+  fillterMiddleware<UpdateMeRequestBody>([
+    'name',
+    'date_of_birth',
+    'bio',
+    'location',
+    'website',
+    'username',
+    'avatar',
+    'cover_photo'
+  ]),
+  wrapRequestHandler(updateMeController)
+)
+/**
+ * Description: Get user profile
+ * Path: /:username
+ * Method: GET
+ * Body: { Authozation: Bearer <access_token> }
+ * Body: User schema
+ */
+usersRouter.get('/:username', wrapRequestHandler(getUserProfileController))
+
 export default usersRouter

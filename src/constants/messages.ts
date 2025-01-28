@@ -41,5 +41,21 @@ export const USER_MESSAGES = {
   FORGOT_PASSWORD_TOKEN_IS_REQUIRED: 'Forgot password token is required',
   FORGOT_PASSWORD_TOKEN_IS_INVALID: 'Forgot password token is invalid',
   VERIFY_FORGOT_PASSWORD_SUCCESS: 'Verify forgot password success',
-  RESET_PASSWORD_SUCCESS: 'Reset password success'
+  RESET_PASSWORD_SUCCESS: 'Reset password success',
+  GET_ME_SUCCESS: 'Get me success',
+  USER_NOT_VERIFIED: 'User not verified',
+  UPDATE_ME_SUCCESS: 'Update me success',
+  BIO_MUST_BE_A_STRING: 'Bio must be a string',
+  BIO_LENGTH_MUST_BE_FROM_1_TO_200: 'Bio length must be from 1 to 200',
+  LOCATION_MUST_BE_A_STRING: 'Location must be a string',
+  LOCATION_LENGTH_MUST_BE_FROM_1_TO_200: 'Location length must be from 1 to 200',
+  WEBSITE_MUST_BE_A_STRING: 'Website must be a string',
+  WEBSITE_LENGTH_MUST_BE_FROM_1_TO_200: 'Website length must be from 1 to 200',
+  USERNAME_MUST_BE_A_STRING: 'Username must be a string',
+  USERNAME_LENGTH_MUST_BE_FROM_1_TO_50: 'Username length must be from 1 to 50',
+  AVATAR_MUST_BE_A_STRING: 'Avatar must be a string',
+  AVATAR_LENGTH_MUST_BE_FROM_1_TO_400: 'Avatar length must be from 1 to 400',
+  COVER_PHOTO_MUST_BE_A_STRING: 'Cover photo must be a string',
+  COVER_PHOTO_LENGTH_MUST_BE_FROM_1_TO_400: 'Cover photo length must be from 1 to 400',
+  GET_PROFILE_SUCCESS: 'Get profile success'
 } as const
