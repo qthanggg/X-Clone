@@ -53,6 +53,8 @@ export const USER_MESSAGES = {
   WEBSITE_LENGTH_MUST_BE_FROM_1_TO_200: 'Website length must be from 1 to 200',
   USERNAME_MUST_BE_A_STRING: 'Username must be a string',
   USERNAME_LENGTH_MUST_BE_FROM_1_TO_50: 'Username length must be from 1 to 50',
+  USERNAME_INVALID: 'Username must be 4-15 characters long and contain only letters, numbers, and underscores',
+  USERNAME_ALREADY_EXISTS: 'Username already exists',
   AVATAR_MUST_BE_A_STRING: 'Avatar must be a string',
   AVATAR_LENGTH_MUST_BE_FROM_1_TO_400: 'Avatar length must be from 1 to 400',
   COVER_PHOTO_MUST_BE_A_STRING: 'Cover photo must be a string',
@@ -63,5 +65,7 @@ export const USER_MESSAGES = {
   FOLLOWED_USER_ALREADY_EXISTS: 'Followed user already exists',
   INVALID_USER_ID: 'Invalid user id',
   UNFOLLOW_USER_SUCCESS: 'Unfollow user success',
-  FOLLOWED_USER_NOT_FOUND: 'Followed user not found'
+  FOLLOWED_USER_NOT_FOUND: 'Followed user not found',
+  OLD_PASSWORD_IS_INCORRECT: 'Old password is incorrect',
+  CHANGE_PASSWORD_SUCCESS: 'Change password success'
 } as const

@@ -13,11 +13,13 @@ import {
   updateMeController,
   getUserProfileController,
   followUserController,
-  unfollowUserController
+  unfollowUserController,
+  changePasswordController
 } from '~/controllers/users.controllers'
 import { fillterMiddleware } from '~/middlewares/common.middleware'
 import {
   accessTokenValidator,
+  changePasswordValidator,
   emailVerifyTokenValidator,
   followUserValidator,
   forgotPasswordValidator,
@@ -101,6 +103,19 @@ usersRouter.post(
  * Body: { password: string }
  */
 usersRouter.post('/reset-password', resetPasswordValidator, wrapRequestHandler(resetPasswordController))
+/**
+ * Description: Change password
+ * Path: /change-password
+ * Method: POST
+ * Body: { password: string, new_password: string, confirm_new_password: string }
+ */
+usersRouter.put(
+  '/change-password',
+  accessTokenValidator,
+  verifyUserValidator,
+  changePasswordValidator,
+  wrapRequestHandler(changePasswordController)
+)
 /**
  * Description: Get user profile
  * Path: /me

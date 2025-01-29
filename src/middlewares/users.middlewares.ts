@@ -13,6 +13,7 @@ import { Request, Response, NextFunction } from 'express'
 import { TokenType, UserVerifyStatus } from '~/constants/enum'
 import { ObjectId } from 'mongodb'
 import { TokenPayload } from '~/models/request/User.request'
+import { REGEX_USERNAME } from '~/constants/regex'
 
 const passswordSchema: ParamSchema = {
   notEmpty: {
@@ -377,6 +378,36 @@ export const resetPasswordValidator = validate(
     ['body']
   )
 )
+export const changePasswordValidator = validate(
+  checkSchema({
+    old_password: {
+      ...passswordSchema,
+      custom: {
+        options: async (value, { req }) => {
+          const { user_id } = req.decoded_authorization as TokenPayload
+          const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+          if (!user) {
+            throw new ErrorWithStatus({
+              message: USER_MESSAGES.USER_NOT_FOUND,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          const { password } = user
+          const isMatch = hashPassword(value) === password
+          if (!isMatch) {
+            throw new ErrorWithStatus({
+              message: USER_MESSAGES.OLD_PASSWORD_IS_INCORRECT,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          return true
+        }
+      }
+    },
+    password: passswordSchema,
+    confirm_password: confirmPasswordSchema
+  })
+)
 export const verifyUserValidator = (req: Request, res: Response, next: NextFunction) => {
   const { verify } = req.decoded_authorization as TokenPayload
 
@@ -441,9 +472,16 @@ export const updateMeValidator = validate(
           errorMessage: USER_MESSAGES.USERNAME_MUST_BE_A_STRING
         },
         trim: true,
-        isLength: {
-          options: { min: 1, max: 50 },
-          errorMessage: USER_MESSAGES.USERNAME_LENGTH_MUST_BE_FROM_1_TO_50
+        custom: {
+          options: async (value, { req }) => {
+            if (!REGEX_USERNAME.test(value)) {
+              throw new Error(USER_MESSAGES.USERNAME_INVALID)
+            }
+            const user = await databaseService.users.findOne({ username: value })
+            if (user) {
+              throw new Error(USER_MESSAGES.USERNAME_ALREADY_EXISTS)
+            }
+          }
         }
       },
       avatar: {

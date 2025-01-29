@@ -196,6 +196,14 @@ class UsersService {
   public createEmailVerifyToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return this.signEmailVerifyToken({ user_id, verify })
   }
+  // change password
+  async changePassword(user_id: string, password: string) {
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      { $set: { password: hashPassword(password) }, $currentDate: { updated_at: true } }
+    )
+    return USER_MESSAGES.CHANGE_PASSWORD_SUCCESS
+  }
   // get me
   async getMe(user_id: string) {
     const user = await databaseService.users.findOne(

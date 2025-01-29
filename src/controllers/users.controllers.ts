@@ -19,7 +19,8 @@ import {
   VerifyEmailRequestBody,
   VerifyForgotPasswordRequestBody,
   FollowUserRequestBody,
-  UnfollowUserRequestBody
+  UnfollowUserRequestBody,
+  ChangePasswordRequestBody
 } from '~/models/request/User.request'
 import User from '~/models/schemas/User.schemas'
 import databaseService from '~/services/database.services'
@@ -143,6 +144,17 @@ export const resetPasswordController = async (
   const { user_id } = req.decoded_forgot_password_token as TokenPayload
   const { password } = req.body
   const result = await usersService.resetPassword(user_id, password)
+  res.json({ message: result })
+}
+// change password
+export const changePasswordController = async (
+  req: Request<ParamsDictionary, any, ChangePasswordRequestBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { password } = req.body
+  const result = await usersService.changePassword(user_id, password)
   res.json({ message: result })
 }
 // get me
