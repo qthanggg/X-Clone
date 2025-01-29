@@ -264,6 +264,24 @@ class UsersService {
     }
     return USER_MESSAGES.FOLLOWED_USER_ALREADY_EXISTS
   }
+  // unfollow user
+  async unfollowUser(user_id: string, followed_user_id: string) {
+    const flower = await databaseService.flowers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    if (flower === null) {
+      throw new ErrorWithStatus({
+        message: USER_MESSAGES.FOLLOWED_USER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
+      })
+    }
+    await databaseService.flowers.deleteOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    return USER_MESSAGES.UNFOLLOW_USER_SUCCESS
+  }
 }
 
 const usersService = new UsersService()

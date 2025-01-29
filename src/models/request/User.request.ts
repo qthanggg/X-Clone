@@ -21,6 +21,9 @@ export interface UpdateMeRequestBody {
 export interface FollowUserRequestBody {
   followed_user_id: string
 }
+export interface UnfollowUserRequestBody {
+  followed_user_id: string
+}
 export interface LoginRequestBody {
   email: string
   password: string

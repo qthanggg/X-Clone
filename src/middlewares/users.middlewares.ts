@@ -115,7 +115,26 @@ const nameSchema: ParamSchema = {
   },
   trim: true
 }
+const userIdSchema: ParamSchema = {
+  custom: {
+    options: async (value, { req }) => {
+      if (!ObjectId.isValid(value)) {
+        throw new ErrorWithStatus({
+          message: USER_MESSAGES.INVALID_USER_ID,
+          status: HTTP_STATUS.NOT_FOUND
+        })
+      }
+      const followed_user = await databaseService.users.findOne({ _id: new ObjectId(value) })
 
+      if (followed_user === null) {
+        throw new ErrorWithStatus({
+          message: USER_MESSAGES.USER_NOT_FOUND,
+          status: HTTP_STATUS.NOT_FOUND
+        })
+      }
+    }
+  }
+}
 export const loginValidator = validate(
   checkSchema(
     {
@@ -456,27 +475,16 @@ export const updateMeValidator = validate(
 export const followUserValidator = validate(
   checkSchema(
     {
-      followed_user_id: {
-        custom: {
-          options: async (value, { req }) => {
-            if (!ObjectId.isValid(value)) {
-              throw new ErrorWithStatus({
-                message: USER_MESSAGES.INVALID_FOLLOWED_USER_ID,
-                status: HTTP_STATUS.NOT_FOUND
-              })
-            }
-            const followed_user = await databaseService.users.findOne({ _id: new ObjectId(value) })
-
-            if (followed_user === null) {
-              throw new ErrorWithStatus({
-                message: USER_MESSAGES.USER_NOT_FOUND,
-                status: HTTP_STATUS.NOT_FOUND
-              })
-            }
-          }
-        }
-      }
+      followed_user_id: userIdSchema
     },
     ['body']
+  )
+)
+export const unfollowUserValidator = validate(
+  checkSchema(
+    {
+      followed_user_id: userIdSchema
+    },
+    ['params']
   )
 )

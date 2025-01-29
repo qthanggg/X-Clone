@@ -18,7 +18,8 @@ import {
   UpdateMeRequestBody,
   VerifyEmailRequestBody,
   VerifyForgotPasswordRequestBody,
-  FollowUserRequestBody
+  FollowUserRequestBody,
+  UnfollowUserRequestBody
 } from '~/models/request/User.request'
 import User from '~/models/schemas/User.schemas'
 import databaseService from '~/services/database.services'
@@ -181,5 +182,16 @@ export const followUserController = async (
   const { user_id } = req.decoded_authorization as TokenPayload
   const { followed_user_id } = req.body
   const result = await usersService.followUser(user_id, followed_user_id)
+  res.json({ message: result })
+}
+// unfollow user
+export const unfollowUserController = async (
+  req: Request<ParamsDictionary, any, UnfollowUserRequestBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { followed_user_id } = req.params
+  const result = await usersService.unfollowUser(user_id, followed_user_id)
   res.json({ message: result })
 }
