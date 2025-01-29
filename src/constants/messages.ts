@@ -57,5 +57,8 @@ export const USER_MESSAGES = {
   AVATAR_LENGTH_MUST_BE_FROM_1_TO_400: 'Avatar length must be from 1 to 400',
   COVER_PHOTO_MUST_BE_A_STRING: 'Cover photo must be a string',
   COVER_PHOTO_LENGTH_MUST_BE_FROM_1_TO_400: 'Cover photo length must be from 1 to 400',
-  GET_PROFILE_SUCCESS: 'Get profile success'
+  GET_PROFILE_SUCCESS: 'Get profile success',
+  FOLLOW_USER_SUCCESS: 'Follow user success',
+  INVALID_FOLLOWED_USER_ID: 'Invalid followed user id',
+  FOLLOWED_USER_ALREADY_EXISTS: 'Followed user already exists'
 } as const

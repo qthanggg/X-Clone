@@ -17,7 +17,8 @@ import {
   TokenPayload,
   UpdateMeRequestBody,
   VerifyEmailRequestBody,
-  VerifyForgotPasswordRequestBody
+  VerifyForgotPasswordRequestBody,
+  FollowUserRequestBody
 } from '~/models/request/User.request'
 import User from '~/models/schemas/User.schemas'
 import databaseService from '~/services/database.services'
@@ -170,4 +171,15 @@ export const updateMeController = async (
   console.log(body)
   const result = await usersService.updateMe(user_id, body)
   res.json({ message: USER_MESSAGES.UPDATE_ME_SUCCESS, result })
+}
+// follow user
+export const followUserController = async (
+  req: Request<ParamsDictionary, any, FollowUserRequestBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { followed_user_id } = req.body
+  const result = await usersService.followUser(user_id, followed_user_id)
+  res.json({ message: result })
 }

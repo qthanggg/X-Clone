@@ -11,6 +11,7 @@ import databaseService from '~/services/database.services'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import emailService from '~/services/email.services'
+import Flower from '~/models/schemas/Follower.schema'
 config()
 class UsersService {
   private signAccessToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
@@ -245,6 +246,23 @@ class UsersService {
       })
     }
     return user
+  }
+  // follow user
+  async followUser(user_id: string, followed_user_id: string) {
+    const follower = await databaseService.flowers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    if (follower === null) {
+      await databaseService.flowers.insertOne(
+        new Flower({
+          user_id: new ObjectId(user_id),
+          followed_user_id: new ObjectId(followed_user_id)
+        })
+      )
+      return USER_MESSAGES.FOLLOW_USER_SUCCESS
+    }
+    return USER_MESSAGES.FOLLOWED_USER_ALREADY_EXISTS
   }
 }
 

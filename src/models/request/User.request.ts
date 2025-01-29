@@ -18,6 +18,9 @@ export interface UpdateMeRequestBody {
   avatar?: string
   cover_photo?: string
 }
+export interface FollowUserRequestBody {
+  followed_user_id: string
+}
 export interface LoginRequestBody {
   email: string
   password: string
