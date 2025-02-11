@@ -14,7 +14,8 @@ import {
   getUserProfileController,
   followUserController,
   unfollowUserController,
-  changePasswordController
+  changePasswordController,
+  loginWithGoogleController
 } from '~/controllers/users.controllers'
 import { fillterMiddleware } from '~/middlewares/common.middleware'
 import {
@@ -183,5 +184,12 @@ usersRouter.delete(
   unfollowUserValidator,
   wrapRequestHandler(unfollowUserController)
 )
+/**
+ * Description: Login with Google
+ * Path: /login/oauth
+ * Method: GET
+ * Query: {code: string}
+ */
+usersRouter.get('/login/oauth', wrapRequestHandler(loginWithGoogleController))
 
 export default usersRouter

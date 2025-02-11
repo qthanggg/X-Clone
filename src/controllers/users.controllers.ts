@@ -27,7 +27,8 @@ import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
 import emailService from '~/services/email.services'
 import { pick } from 'lodash'
-
+import { config } from 'dotenv'
+config()
 // login
 export const loginController = async (req: Request<ParamsDictionary, any, LoginRequestBody>, res: Response) => {
   const user = req.user as User
@@ -206,4 +207,15 @@ export const unfollowUserController = async (
   const { followed_user_id } = req.params
   const result = await usersService.unfollowUser(user_id, followed_user_id)
   res.json({ message: result })
+}
+// login with google
+export const loginWithGoogleController = async (req: Request, res: Response) => {
+  const { code } = req.query
+  const result = await usersService.oauth(code as string)
+  const urlRedirect = `${process.env.CLIENT_URL}?access_token=${result.access_token}&refresh_token=${result.refresh_token}&new_user=${result.newUser}&verify=${result.verify}`
+  res.redirect(urlRedirect)
+  res.json({
+    message: result.newUser ? USER_MESSAGES.REGISTER_SUCCESS : USER_MESSAGES.LOGIN_SUCCESS,
+    result
+  })
 }
