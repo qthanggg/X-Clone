@@ -2,20 +2,22 @@ import fs from 'fs'
 import path from 'path'
 import { Request } from 'express'
 import { File } from 'formidable'
-import { UPLOAD_TEMP_DIR } from '~/constants/dir'
+import { UPLOAD_IMG_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR } from '~/constants/dir'
+import { get } from 'lodash'
 
 export const initFolder = () => {
-  const uploadFolderPath = path.resolve('uploads/temp')
-  if (!fs.existsSync(UPLOAD_TEMP_DIR)) {
-    fs.mkdirSync(UPLOAD_TEMP_DIR, {
-      recursive: true
-    })
-  }
+  ;[UPLOAD_IMG_TEMP_DIR, UPLOAD_VIDEO_TEMP_DIR].forEach((dir) => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, {
+        recursive: true
+      })
+    }
+  })
 }
 export const hanldeUploadImg = async (req: Request) => {
   const formidable = (await import('formidable')).default
   const form = formidable({
-    uploadDir: UPLOAD_TEMP_DIR,
+    uploadDir: UPLOAD_IMG_TEMP_DIR,
     maxFiles: 4,
     keepExtensions: true,
     maxFileSize: 5000 * 1024, // 5000KB
@@ -40,8 +42,45 @@ export const hanldeUploadImg = async (req: Request) => {
     })
   })
 }
+export const hanldeUploadVideo = async (req: Request) => {
+  const formidable = (await import('formidable')).default
+  const form = formidable({
+    uploadDir: UPLOAD_VIDEO_DIR,
+    maxFiles: 4,
+    maxFileSize: 50 * 1024 * 1024, // 5000KB
+    filter: function ({ name, originalFilename, mimetype }) {
+      return true
+      // const valid = name === 'image' && Boolean(mimetype?.includes('image/'))
+      // if (!valid) {
+      //   form.emit('error' as any, new Error('File is not valid') as any)
+      // }
+      // return valid
+    }
+  })
+  return new Promise<File[]>((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        return reject(err)
+      }
+      if (!Boolean(files.video)) {
+        return reject(new Error('File is empty'))
+      }
+      const videos = files.video as File[]
+      videos.forEach((video) => {
+        const ext = getExtention(video.originalFilename as string)
+        fs.renameSync(video.filepath, video.filepath + '.' + ext)
+        video.newFilename = video.newFilename + '.' + ext
+      })
+      resolve(files.video as File[])
+    })
+  })
+}
 export const getNameFromFullName = (fullname: string) => {
   const namearr = fullname.split('.')
   namearr.pop()
   return namearr.join('')
+}
+export const getExtention = (fullname: string) => {
+  const namearr = fullname.split('.')
+  return namearr[namearr.length - 1]
 }

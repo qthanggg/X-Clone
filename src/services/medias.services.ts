@@ -2,8 +2,8 @@ import { uploadImgController } from './../controllers/medias.controllers'
 import { Request } from 'express'
 import path from 'path'
 import sharp from 'sharp'
-import { UPLOAD_DIR } from '~/constants/dir'
-import { getNameFromFullName, hanldeUploadImg } from '~/utils/file'
+import { UPLOAD_IMG_DIR } from '~/constants/dir'
+import { getNameFromFullName, hanldeUploadImg, hanldeUploadVideo } from '~/utils/file'
 import fs from 'fs'
 import { isProduction } from '~/constants/config'
 import { config } from 'dotenv'
@@ -16,7 +16,7 @@ class MediasService {
     const result: Media[] = await Promise.all(
       files.map(async (file) => {
         const newName = getNameFromFullName(file.newFilename)
-        const newPath = path.resolve(UPLOAD_DIR, `${newName}.jpg`)
+        const newPath = path.resolve(UPLOAD_IMG_DIR, `${newName}.jpg`)
         await sharp(file.filepath).jpeg().toFile(newPath)
         fs.unlinkSync(file.filepath)
 
@@ -30,7 +30,18 @@ class MediasService {
     )
     return result
   }
+  async uploadVideo(req: Request) {
+    const files = await hanldeUploadVideo(req)
+    const { newFilename } = files[0]
+    return {
+      url: isProduction
+        ? `${process.env.HOST}/static/video/${newFilename}`
+        : `http://localhost:4000/static/video/${newFilename}`,
+      type: MediaType.Video
+    }
+  }
 }
+
 const mediasService = new MediasService()
 
 export default mediasService
