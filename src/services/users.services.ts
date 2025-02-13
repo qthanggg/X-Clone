@@ -178,8 +178,8 @@ class UsersService {
   }
   // refresh token
   async refreshToken({ refresh_token, decoded_refresh_token }: { refresh_token: string; decoded_refresh_token: any }) {
-    const { user_id } = decoded_refresh_token
-    const [new_access_token, new_refresh_token] = await this.signAcessAndRefreshToken(user_id)
+    const { user_id, verify } = decoded_refresh_token
+    const [new_access_token, new_refresh_token] = await this.signAcessAndRefreshToken({ user_id, verify })
     await databaseService.refreshTokens.deleteOne({ token: refresh_token })
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: new_refresh_token })
