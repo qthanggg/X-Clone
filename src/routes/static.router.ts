@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { serveImgController, serveVideoController } from '~/controllers/medias.controllers'
+import { serveImgController, serveVideoStreamController } from '~/controllers/medias.controllers.js'
 const staticRouter = Router()
 
 staticRouter.get('/image/:name', serveImgController)
-staticRouter.get('/video/:name', serveVideoController)
+staticRouter.get('/video-stream/:name', serveVideoStreamController)
 
 export default staticRouter

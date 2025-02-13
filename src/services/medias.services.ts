@@ -1,4 +1,4 @@
-import { uploadImgController } from './../controllers/medias.controllers'
+import { uploadImgController } from '../controllers/medias.controllers.js'
 import { Request } from 'express'
 import path from 'path'
 import sharp from 'sharp'

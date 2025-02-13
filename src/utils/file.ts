@@ -47,14 +47,13 @@ export const hanldeUploadVideo = async (req: Request) => {
   const form = formidable({
     uploadDir: UPLOAD_VIDEO_DIR,
     maxFiles: 4,
-    maxFileSize: 50 * 1024 * 1024, // 5000KB
+    maxFileSize: 500 * 1024 * 1024, // 50MB
     filter: function ({ name, originalFilename, mimetype }) {
-      return true
-      // const valid = name === 'image' && Boolean(mimetype?.includes('image/'))
-      // if (!valid) {
-      //   form.emit('error' as any, new Error('File is not valid') as any)
-      // }
-      // return valid
+      const valid = name === 'video' && Boolean(mimetype?.includes('mp4') || mimetype?.includes('mov'))
+      if (!valid) {
+        form.emit('error' as any, new Error('File is not valid') as any)
+      }
+      return valid
     }
   })
   return new Promise<File[]>((resolve, reject) => {
