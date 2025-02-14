@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import { NextFunction, Request, RequestHandler, Response } from 'express'
 import path from 'path'
 import { UPLOAD_IMG_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
 import HTTP_STATUS from '~/constants/httpStatus'
@@ -25,44 +25,56 @@ export const serveImgController = (req: Request, res: Response, next: NextFuncti
     }
   })
 }
+export const serveM3U8Controller = (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params
+  res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, 'master.m3u8'), (err) => {
+    if (err) {
+      res.status((err as any).status).send({
+        message: USER_MESSAGES.FILE_NOT_FOUND
+      })
+    }
+  })
+}
+export const serveSegmentController = (req: Request, res: Response, next: NextFunction) => {
+  const { id, v, segment } = req.params
 
-// export const serveVideoStreamingController = (req: Request, res: Response, next: NextFunction) => {
-//   const range = req.headers.range
-//   if (!range) {
-//     res.status(HTTP_STATUS.BAD_REQUEST).send('Requires Range header')
-//   }
-//   const { name } = req.params
-//   const videopath = path.resolve(UPLOAD_VIDEO_DIR, name)
-//   // 1MP = 10^6 bytes ( Tính theo hệ 10)
-//   // tính theo hệ nhị phân thì 1MB = 2^20 bytes (1024 * 1024)
-//   // Dung lượng video
-//   const videosSize = fs.statSync(videopath).size
-//   // DUng lượng video cho mỗi đoạn stream
-//   const chunksize = 10 ** 6 // 1MB
-//   // lấy giá trị byte bắt đàu từ header range (vd: bytes=12055-)
-//   const start = Number((range as string).replace(/\D/g, '')) // 12055
-//   // lấy giá trị byte cuối từ header range (vd: bytes=12055-12555), vượt quá dung lượng video thì lấy giá trị cuối cùng của video
-//   const end = Math.min(start + chunksize, videosSize) // 12555
-//   // Dung lượng thực tế cho mỗi đoạn stream
-//   // thường đây sẽ là trunksize, ngoại trừ đoạn stream cuối cùng
-//   const contentLength = end - start + 1
-//   const contenType = mime.lookup(videopath) || 'video/*'
-//   const headers = {
-//     'Content-Range': `bytes ${start}-${end}/${videosSize}`,
-//     'Accept-Ranges': 'bytes',
-//     'Content-Length': contentLength,
-//     'Content-Type': contenType
-//   }
-//   res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, headers)
-//   const videoStream = fs.createReadStream(videopath, { start, end })
-//   videoStream.pipe(res)
-// }
-export const serveVideoStreamController = async (req: Request, res: Response) => {
+  res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, v, segment), (err) => {
+    if (err) {
+      res.status((err as any).status).send({
+        message: USER_MESSAGES.FILE_NOT_FOUND
+      })
+    }
+  })
+}
+
+export const uploadVideoController = async (req: Request, res: Response, next: NextFunction) => {
+  const url = await mediasService.uploadVideo(req)
+  res.json({
+    message: USER_MESSAGES.UPLOAD_SUCCESS,
+    url
+  })
+}
+export const uploadVideoHLSController = async (req: Request, res: Response, next: NextFunction) => {
+  const url = await mediasService.uploadVideoHLS(req)
+  res.json({
+    message: USER_MESSAGES.UPLOAD_SUCCESS,
+    url
+  })
+}
+export const videoStatusController = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params
+  const result = await mediasService.getVideoStatus(id as string)
+  res.json({
+    message: USER_MESSAGES.GET_VIDEO_STATUS_SUCCESS,
+    result: result
+  })
+}
+export const serveVideoStreamController: RequestHandler = async (req: Request, res: Response) => {
   const { name } = req.params
   const range = req.headers.range
 
   if (!range) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).send('Requires Range header')
+    res.status(HTTP_STATUS.BAD_REQUEST).send('Requires Range header')
   }
 
   const videoPath = path.resolve(UPLOAD_VIDEO_DIR, name)
@@ -74,7 +86,7 @@ export const serveVideoStreamController = async (req: Request, res: Response) =>
   // DUng lượng video cho mỗi phân đoạn stream
   const chunkSize = 5 * 10 ** 6 // 5MB
   // Lấy giá trị byte bắt đầu từ header Range (vd: bytes=1048576-)
-  const start = Number(range.replace(/\D/g, ''))
+  const start = Number((range as string).replace(/\D/g, ''))
   // Lấy giá trị byte kết thúc, vượt quá dung lượng video thì lấy giá trị videoSize - 1
   const end = Math.min(start + chunkSize, videoSize - 1)
 
@@ -110,14 +122,6 @@ export const serveVideoStreamController = async (req: Request, res: Response) =>
   }
 
   res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, headers)
-
   const videoStream = fs.createReadStream(videoPath, { start, end })
   videoStream.pipe(res)
-}
-export const uploadVideoController = async (req: Request, res: Response, next: NextFunction) => {
-  const url = await mediasService.uploadVideo(req)
-  res.json({
-    message: USER_MESSAGES.UPLOAD_SUCCESS,
-    url
-  })
 }

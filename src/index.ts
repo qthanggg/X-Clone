@@ -1,6 +1,7 @@
 import { config } from 'dotenv'
 import express from 'express'
-import { UPLOAD_IMG_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
+import cors from 'cors'
+import { UPLOAD_VIDEO_DIR } from '~/constants/dir'
 import defaultErrorHandler from '~/middlewares/error.middleware'
 import mediaRouter from '~/routes/media.router'
 import staticRouter from '~/routes/static.router'
@@ -10,6 +11,7 @@ import { initFolder } from '~/utils/file'
 
 config()
 const app = express()
+app.use(cors())
 const PORT = process.env.PORT || 4000
 databaseService.connect()
 
