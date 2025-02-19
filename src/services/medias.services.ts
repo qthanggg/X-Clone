@@ -2,7 +2,7 @@ import { uploadImgController } from '../controllers/medias.controllers.js'
 import { Request } from 'express'
 import path from 'path'
 import sharp from 'sharp'
-import { UPLOAD_IMG_DIR } from '~/constants/dir'
+import { UPLOAD_IMG_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
 import { getNameFromFullName, hanldeUploadImg, hanldeUploadVideo } from '~/utils/file'
 import fs from 'fs'
 import fsPromise from 'fs/promises'
@@ -46,7 +46,8 @@ class Queu {
     if (this.items.length > 0) {
       this.encodeing = true
       const videoPath = this.items[0]
-      const idName = videoPath.split('/').pop() as string
+      const idName = path.parse(videoPath).name
+
       await databaseService.videoStatus.updateOne(
         { name: idName },
         {
@@ -58,12 +59,12 @@ class Queu {
           }
         }
       )
-      this.processEndcode()
+
       try {
         await encodeHLSWithMultipleVideoStreams(videoPath)
         this.items.shift()
         await fsPromise.unlink(videoPath)
-        const idName = videoPath.split('/').pop() as string
+
         await databaseService.videoStatus.updateOne(
           { name: idName },
           {
@@ -75,26 +76,22 @@ class Queu {
             }
           }
         )
-        console.log(`Encode ${videoPath} succes`)
+        console.log(`Encode ${videoPath} success`)
       } catch (error) {
-        const idName = videoPath.split('/').pop() as string
-        await databaseService.videoStatus
-          .updateOne(
-            { name: idName },
-            {
-              $set: {
-                status: EncodingStatus.Failed
-              },
-              $currentDate: {
-                updated_at: true
-              }
+        await databaseService.videoStatus.updateOne(
+          { name: idName },
+          {
+            $set: {
+              status: EncodingStatus.Failed
+            },
+            $currentDate: {
+              updated_at: true
             }
-          )
-          .catch((err) => {
-            console.log('update err', err)
-          })
+          }
+        )
+        console.log(`Encode ${videoPath} fail`, error)
       }
-      console.log(`Encode ${videoPath} fail`)
+
       this.encodeing = false
       this.processEndcode()
     } else {
@@ -125,7 +122,18 @@ class MediasService {
   }
   async uploadVideo(req: Request) {
     const files = await hanldeUploadVideo(req)
-    const { newFilename } = files[0]
+    const { filepath, newFilename } = files[0]
+
+    // Create video directory if not exists
+    const videoDir = path.resolve(UPLOAD_VIDEO_DIR)
+    if (!fs.existsSync(videoDir)) {
+      fs.mkdirSync(videoDir, { recursive: true })
+    }
+
+    // Move file to correct location
+    const newPath = path.resolve(UPLOAD_VIDEO_DIR, newFilename)
+    fs.renameSync(filepath, newPath)
+
     return {
       url: isProduction
         ? `${process.env.HOST}/static/video-stream/${newFilename}`

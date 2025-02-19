@@ -27,7 +27,7 @@ export const serveImgController = (req: Request, res: Response, next: NextFuncti
 }
 export const serveM3U8Controller = (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params
-  res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, 'master.m3u8'), (err) => {
+  return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, 'master.m3u8'), (err) => {
     if (err) {
       res.status((err as any).status).send({
         message: USER_MESSAGES.FILE_NOT_FOUND
@@ -69,7 +69,7 @@ export const videoStatusController = async (req: Request, res: Response, next: N
     result: result
   })
 }
-export const serveVideoStreamController: RequestHandler = async (req: Request, res: Response) => {
+export const serveVideoStreamController = async (req: Request, res: Response) => {
   const { name } = req.params
   const range = req.headers.range
 
@@ -86,7 +86,7 @@ export const serveVideoStreamController: RequestHandler = async (req: Request, r
   // DUng lượng video cho mỗi phân đoạn stream
   const chunkSize = 5 * 10 ** 6 // 5MB
   // Lấy giá trị byte bắt đầu từ header Range (vd: bytes=1048576-)
-  const start = Number((range as string).replace(/\D/g, ''))
+  const start = Number(range!.replace(/\D/g, ''))
   // Lấy giá trị byte kết thúc, vượt quá dung lượng video thì lấy giá trị videoSize - 1
   const end = Math.min(start + chunkSize, videoSize - 1)
 

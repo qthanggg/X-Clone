@@ -2,17 +2,16 @@ import fs from 'fs'
 import path from 'path'
 import { Request } from 'express'
 import { File } from 'formidable'
-import { UPLOAD_IMG_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR } from '~/constants/dir'
+import { UPLOAD_IMG_DIR, UPLOAD_IMG_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR } from '~/constants/dir'
 
 export const initFolder = () => {
-  ;[UPLOAD_IMG_TEMP_DIR, UPLOAD_VIDEO_TEMP_DIR].forEach((dir) => {
+  ;[UPLOAD_IMG_DIR, UPLOAD_IMG_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR].forEach((dir) => {
     if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, {
-        recursive: true
-      })
+      fs.mkdirSync(dir, { recursive: true })
     }
   })
 }
+
 export const hanldeUploadImg = async (req: Request) => {
   const formidable = (await import('formidable')).default
   const form = formidable({
@@ -41,6 +40,7 @@ export const hanldeUploadImg = async (req: Request) => {
     })
   })
 }
+
 export const hanldeUploadVideo = async (req: Request) => {
   const formidable = (await import('formidable')).default
   const nanoId = (await import('nanoid')).nanoid
@@ -49,7 +49,7 @@ export const hanldeUploadVideo = async (req: Request) => {
   fs.mkdirSync(folderPath)
   const form = formidable({
     uploadDir: path.resolve(UPLOAD_VIDEO_DIR, idName),
-    maxFiles: 4,
+    maxFiles: 1,
     maxFileSize: 500 * 1024 * 1024, // 50MB
     filter: function ({ name, originalFilename, mimetype }) {
       const valid = name === 'video' && Boolean(mimetype?.includes('mp4') || mimetype?.includes('mov'))
@@ -81,11 +81,13 @@ export const hanldeUploadVideo = async (req: Request) => {
     })
   })
 }
+
 export const getNameFromFullName = (fullname: string) => {
   const namearr = fullname.split('.')
   namearr.pop()
   return namearr.join('')
 }
+
 export const getExtention = (fullname: string) => {
   const namearr = fullname.split('.')
   return namearr[namearr.length - 1]
