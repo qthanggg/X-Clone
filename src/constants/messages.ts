@@ -73,3 +73,17 @@ export const USER_MESSAGES = {
   FILE_NOT_FOUND: 'File not found',
   GET_VIDEO_STATUS_SUCCESS: 'Get status success'
 } as const
+
+export const TWEETS_MESSAGES = {
+  TWEET_TYPE_IS_INVALID: 'Tweet type is invalid',
+  TWEET_AUDIENCE_IS_INVALID: 'Tweet audience is invalid',
+  PARENT_ID_IS_REQUIRED: 'Parent id is required',
+  PARENT_ID_MUST_BE_NULL: 'Parent id must be null',
+  CONTENT_MUST_BE_A_STRING: 'Content must be a string',
+  CONTENT_MUST_BE_A_NON_EMPTY_STRING: 'Content must be a non-empty string',
+  CONTENT_MUST_BE_A_EMPTY_STRING: 'Content must be a empty string',
+  HASHTAGS_MUST_BE_AN_ARRAY_OF_STRINGS: 'Hashtags must be an array of strings',
+  MENTIONS_MUST_BE_AN_ARRAY_OF_USER_IDS: 'Mentions must be an array of user ids',
+  MEDIA_MUST_BE_AN_ARRAY_OF_STRINGS: 'Media must be an array of strings',
+  CREATE_TWEET_SUCCESS: 'Create tweet success'
+} as const

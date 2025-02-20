@@ -2,8 +2,9 @@ import { Collection, Db, MongoClient } from 'mongodb'
 import User from '~/models/schemas/User.schemas'
 import { config } from 'dotenv'
 import RefreshToken from '~/models/schemas/RefreshToken.schemas'
-import Flower from '~/models/schemas/Follower.schema'
 import VideoStatus from '~/models/schemas/VideoStatus.schema'
+import Follower from '~/models/schemas/Follower.schema'
+import Tweet from '~/models/schemas/Tweet.schema'
 config()
 
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter.rtpb0.mongodb.net/?retryWrites=true&w=majority&appName=Twitter`
@@ -24,17 +25,40 @@ class DatabaseService {
       console.log(error)
     }
   }
+  async indexUser() {
+    const isExit = await this.users.indexExists(['email_1_password_1', 'email_1', 'username_1'])
+    if (!isExit) {
+      this.users.createIndex({ email: 1, password: 1 })
+      this.users.createIndex({ email: 1 }, { unique: true })
+      this.users.createIndex({ username: 1 }, { unique: true })
+    }
+  }
+  async indexVideoStatus() {
+    const isExit = await this.videoStatus.indexExists('name_1')
+    if (!isExit) {
+      this.videoStatus.createIndex({ name: 1 })
+    }
+  }
+  async indexFollower() {
+    const isExit = await this.followers.indexExists(['user_id_1_followed_user_id_1'])
+    if (!isExit) {
+      this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
+    }
+  }
   get users(): Collection<User> {
     return this.db.collection(process.env.DB_COLLECTION_USERS as string)
   }
   get refreshTokens(): Collection<RefreshToken> {
     return this.db.collection(process.env.DB_COLLECTION_REFRESH_TOKENS as string)
   }
-  get flowers(): Collection<Flower> {
-    return this.db.collection(process.env.DB_COLLECTION_FLOWERS as string)
+  get followers(): Collection<Follower> {
+    return this.db.collection(process.env.DB_COLLECTION_FOLLOWERS as string)
   }
   get videoStatus(): Collection<VideoStatus> {
     return this.db.collection(process.env.DB_COLLECTION_VIDEO_STATUS as string)
+  }
+  get tweets(): Collection<Tweet> {
+    return this.db.collection(process.env.DB_COLLECTION_TWEETS as string)
   }
 }
 

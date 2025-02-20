@@ -23,7 +23,14 @@ class UsersService {
       options: { expiresIn: process.env.EXPIRES_IN_ACCESS_TOKEN }
     })
   }
-  private signRefreshToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+  private signRefreshToken({ user_id, verify, exp }: { user_id: string; verify: UserVerifyStatus; exp?: number }) {
+    if (exp) {
+      return signToken({
+        payload: { user_id, token_type: TokenType.RefreshToken, verify, exp },
+        privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string,
+        options: {}
+      })
+    }
     return signToken({
       payload: { user_id, token_type: TokenType.RefreshToken, verify },
       privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string,
@@ -177,10 +184,22 @@ class UsersService {
     return { message: USER_MESSAGES.LOGOUT_SUCCESS }
   }
   // refresh token
-  async refreshToken({ refresh_token, decoded_refresh_token }: { refresh_token: string; decoded_refresh_token: any }) {
-    const { user_id, verify } = decoded_refresh_token
-    const [new_access_token, new_refresh_token] = await this.signAcessAndRefreshToken({ user_id, verify })
-    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+  async refreshToken({
+    user_id,
+    verify,
+    exp,
+    refresh_token
+  }: {
+    user_id: string
+    verify: UserVerifyStatus
+    exp: number
+    refresh_token: string
+  }) {
+    const [new_access_token, new_refresh_token] = await Promise.all([
+      this.signAccessToken({ user_id, verify }),
+      this.signRefreshToken({ user_id, verify, exp }),
+      databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    ])
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: new_refresh_token })
     )
@@ -334,12 +353,12 @@ class UsersService {
   }
   // follow user
   async followUser(user_id: string, followed_user_id: string) {
-    const follower = await databaseService.flowers.findOne({
+    const follower = await databaseService.followers.findOne({
       user_id: new ObjectId(user_id),
       followed_user_id: new ObjectId(followed_user_id)
     })
     if (follower === null) {
-      await databaseService.flowers.insertOne(
+      await databaseService.followers.insertOne(
         new Flower({
           user_id: new ObjectId(user_id),
           followed_user_id: new ObjectId(followed_user_id)
@@ -351,7 +370,7 @@ class UsersService {
   }
   // unfollow user
   async unfollowUser(user_id: string, followed_user_id: string) {
-    const flower = await databaseService.flowers.findOne({
+    const flower = await databaseService.followers.findOne({
       user_id: new ObjectId(user_id),
       followed_user_id: new ObjectId(followed_user_id)
     })
@@ -361,7 +380,7 @@ class UsersService {
         status: HTTP_STATUS.NOT_FOUND
       })
     }
-    await databaseService.flowers.deleteOne({
+    await databaseService.followers.deleteOne({
       user_id: new ObjectId(user_id),
       followed_user_id: new ObjectId(followed_user_id)
     })

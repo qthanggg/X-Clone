@@ -191,5 +191,12 @@ usersRouter.delete(
  * Query: {code: string}
  */
 usersRouter.get('/login/oauth', wrapRequestHandler(loginWithGoogleController))
+/**
+ * Description: Verify email for OAuth users
+ * Path: /login/oauth/verify-email
+ * Method: GET
+ * Query: { email_verify_token: string }
+ */
+usersRouter.get('/login/oauth/verify-email', emailVerifyTokenValidator, wrapRequestHandler(verifyEmailController))
 
 export default usersRouter
