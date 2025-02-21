@@ -10,6 +10,7 @@ import databaseService from '~/services/database.services'
 import { initFolder } from '~/utils/file'
 import tweetsRouter from '~/routes/tweets.router'
 import bookmarkRouter from '~/routes/bookmark.routers'
+import likeRouter from '~/routes/like.routers'
 
 config()
 const app = express()
@@ -29,6 +30,7 @@ app.use('/users', usersRouter)
 app.use('/medias', mediaRouter)
 app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarkRouter)
+app.use('/like', likeRouter)
 // app.use('/medias', express.static(UPLOAD_IMG_DIR))
 app.use('/static', staticRouter)
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
