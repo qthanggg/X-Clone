@@ -23,7 +23,7 @@ export enum EncodingStatus {
 }
 export enum TweetType {
   Tweet,
-  Retweet,
+  Retweet, // phai la chuoi rong
   Comment,
   QuoteTweet
 }

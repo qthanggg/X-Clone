@@ -17,6 +17,7 @@ mediaRouter.post(
   verifyUserValidator,
   wrapRequestHandler(uploadVideoHLSController)
 )
+
 mediaRouter.get(
   '/video-status/:id',
   accessTokenValidator,

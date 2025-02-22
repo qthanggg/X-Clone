@@ -526,3 +526,14 @@ export const unfollowUserValidator = validate(
     ['params']
   )
 )
+export const isUserLoginValidator = (middleware: (req: Request, res: Response, next: NextFunction) => void) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    // req.header vs req.headers
+    // header: Không phân biệt chữ hoa chữ thường
+
+    if (req.headers.authorization) {
+      return middleware(req, res, next)
+    }
+    next()
+  }
+}
