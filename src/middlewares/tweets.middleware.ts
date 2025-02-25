@@ -11,6 +11,7 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import { NextFunction, Request, Response } from 'express'
 import Tweet from '~/models/schemas/Tweet.schema'
 import { wrapRequestHandler } from '~/utils/handlers'
+import { error } from 'console'
 const tweetTypes = numberEnumToArray(TweetType)
 const tweetAudiences = numberEnumToArray(TweetAudience)
 const mediaTypes = numberEnumToArray(MediaType)
@@ -126,8 +127,8 @@ export const tweetValidator = validate(
                 message: TWEETS_MESSAGES.TWEET_ID_IS_INVALID
               })
             }
+
             const tweets = await databaseService.tweets.findOne({ _id: new ObjectId(value) })
-            //console.log('tweets', tweets)
 
             const [tweet] = await databaseService.tweets
               .aggregate<Tweet>([
@@ -205,7 +206,7 @@ export const tweetValidator = validate(
                           input: '$tweets_children',
                           as: 'item',
                           cond: {
-                            $eq: ['$$item.type', 1]
+                            $eq: ['$$item.type', TweetType.Retweet]
                           }
                         }
                       }
@@ -216,7 +217,7 @@ export const tweetValidator = validate(
                           input: '$tweets_children',
                           as: 'item',
                           cond: {
-                            $eq: ['$$item.type', 2]
+                            $eq: ['$$item.type', TweetType.Comment]
                           }
                         }
                       }
@@ -227,7 +228,7 @@ export const tweetValidator = validate(
                           input: '$tweets_children',
                           as: 'item',
                           cond: {
-                            $eq: ['$$item.type', 3]
+                            $eq: ['$$item.type', TweetType.QuoteTweet]
                           }
                         }
                       }
@@ -295,3 +296,26 @@ export const audienceValidator = wrapRequestHandler(async (req: Request, res: Re
   }
   next()
 })
+export const getTweetChildrenValidator = validate(
+  checkSchema({
+    tweet_type: {
+      isIn: {
+        options: [tweetTypes],
+        errorMessage: TWEETS_MESSAGES.INVALID_TYPE
+      }
+    },
+    limit: {
+      isNumeric: true,
+      custom: {
+        options: async (value, { req }) => {
+          const num = Number(value)
+          if (num > 100) throw new Error('Maximum is 100')
+          return true
+        }
+      }
+    },
+    page: {
+      isNumeric: true
+    }
+  })
+)
