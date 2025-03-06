@@ -297,19 +297,31 @@ export const audienceValidator = wrapRequestHandler(async (req: Request, res: Re
   next()
 })
 export const getTweetChildrenValidator = validate(
-  checkSchema({
-    tweet_type: {
-      isIn: {
-        options: [tweetTypes],
-        errorMessage: TWEETS_MESSAGES.INVALID_TYPE
+  checkSchema(
+    {
+      tweet_type: {
+        isIn: {
+          options: [tweetTypes],
+          errorMessage: TWEETS_MESSAGES.INVALID_TYPE
+        }
       }
     },
+    ['query']
+  )
+)
+export const pagingationValidator = validate(
+  checkSchema({
     limit: {
       isNumeric: true,
       custom: {
         options: async (value, { req }) => {
           const num = Number(value)
-          if (num > 100) throw new Error('Maximum is 100')
+          if (num < 1 || num > 100) {
+            throw new ErrorWithStatus({
+              status: HTTP_STATUS.BAD_REQUEST,
+              message: TWEETS_MESSAGES.INVALID_LIMIT
+            })
+          }
           return true
         }
       }

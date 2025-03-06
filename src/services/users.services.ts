@@ -329,9 +329,9 @@ class UsersService {
     return user
   }
   // get user profile
-  async getUserProfile(username: string) {
+  async getUserProfile(user_id: string) {
     const user = await databaseService.users.findOne(
-      { username },
+      { _id: new ObjectId(user_id) },
       {
         projection: {
           password: 0,

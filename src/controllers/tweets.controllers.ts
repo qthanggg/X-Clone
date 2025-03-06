@@ -3,7 +3,7 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { update } from 'lodash'
 import { TweetType } from '~/constants/enum'
 import { TWEETS_MESSAGES } from '~/constants/messages'
-import { TweetParam, TweetQuery, TweetsRequestBody } from '~/models/request/Tweets.request'
+import { Paganation, TweetParam, TweetQuery, TweetsRequestBody } from '~/models/request/Tweets.request'
 import { TokenPayload } from '~/models/request/User.request'
 import databaseService from '~/services/database.services'
 import tweetsService from '~/services/tweets.services'
@@ -50,6 +50,26 @@ export const getTweetChildrenController = async (req: Request<TweetParam, any, a
       page,
       total_item: total,
       total_page: Math.ceil(total / limit)
+    }
+  })
+}
+export const getNewFeedsController = async (req: Request<ParamsDictionary, any, any, Paganation>, res: Response) => {
+  const limit = Number(req.query.limit)
+  const page = Number(req.query.page)
+  const user_id = req.decoded_authorization?.user_id as string
+  const result = await tweetsService.getNewFeed({
+    user_id,
+    limit,
+    page
+  })
+  res.json({
+    message: TWEETS_MESSAGES.GET_NEW_FEED_SUCCESS,
+    result: {
+      tweets: result.tweets,
+      limit,
+      page,
+      total_item: result.total,
+      total_page: Math.ceil(result.total / limit)
     }
   })
 }

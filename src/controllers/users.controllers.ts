@@ -161,7 +161,10 @@ export const changePasswordController = async (
 // get me
 export const getMeController = async (req: Request, res: Response, next: NextFunction) => {
   const { user_id } = req.decoded_authorization as TokenPayload
+  console.log('user_id', user_id)
   const user = await usersService.getUserProfile(user_id)
+  console.log('user', user)
+
   res.json({ message: USER_MESSAGES.GET_ME_SUCCESS, result: user })
 }
 // get user profile by username

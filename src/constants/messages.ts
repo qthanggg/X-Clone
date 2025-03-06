@@ -76,6 +76,8 @@ export const USER_MESSAGES = {
 } as const
 
 export const TWEETS_MESSAGES = {
+  INVALID_LIMIT: 'Invalid limit',
+  GET_NEW_FEED_SUCCESS: 'Get new feed success',
   GET_TWEET_SUCCESS: 'Get tweet success',
   GET_TWEET_CHILDREN_SUCCESS: 'Get tweet children success',
   TWEET_TYPE_MUST_BE_A_STRING: 'Tweet type must be a string',

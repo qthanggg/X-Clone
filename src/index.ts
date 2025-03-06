@@ -11,7 +11,7 @@ import { initFolder } from '~/utils/file'
 import tweetsRouter from '~/routes/tweets.router'
 import bookmarkRouter from '~/routes/bookmark.routers'
 import likeRouter from '~/routes/like.routers'
-
+// import '~/utils/fake'
 config()
 const app = express()
 app.use(cors())
