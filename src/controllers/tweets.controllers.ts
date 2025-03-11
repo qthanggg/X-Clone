@@ -1,11 +1,11 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { update } from 'lodash'
+
 import { TweetType } from '~/constants/enum'
 import { TWEETS_MESSAGES } from '~/constants/messages'
 import { Paganation, TweetParam, TweetQuery, TweetsRequestBody } from '~/models/request/Tweets.request'
 import { TokenPayload } from '~/models/request/User.request'
-import databaseService from '~/services/database.services'
+
 import tweetsService from '~/services/tweets.services'
 export const createTweetController = async (req: Request<ParamsDictionary, any, TweetsRequestBody>, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload

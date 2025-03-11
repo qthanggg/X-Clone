@@ -11,6 +11,7 @@ import { initFolder } from '~/utils/file'
 import tweetsRouter from '~/routes/tweets.router'
 import bookmarkRouter from '~/routes/bookmark.routers'
 import likeRouter from '~/routes/like.routers'
+import searchRouter from '~/routes/search.routers'
 // import '~/utils/fake'
 config()
 const app = express()
@@ -20,6 +21,7 @@ databaseService.connect().then(() => {
   databaseService.indexUser()
   databaseService.indexFollower()
   databaseService.indexVideoStatus()
+  databaseService.indexTweets()
 })
 
 initFolder()
@@ -31,6 +33,7 @@ app.use('/medias', mediaRouter)
 app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarkRouter)
 app.use('/like', likeRouter)
+app.use('/search', searchRouter)
 // app.use('/medias', express.static(UPLOAD_IMG_DIR))
 app.use('/static', staticRouter)
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))

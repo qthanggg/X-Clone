@@ -113,3 +113,6 @@ export const LIKE_MESSAGE = {
   LIKE_SUCCESS: 'Like success',
   UNLIKE_SUCCESS: 'Unlike success'
 } as const
+export const SEARCH_MESSAGE = {
+  SEARCH_SUCCESS: 'Search success'
+} as const
