@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { result } from 'lodash'
-import { MediaTypeQuery } from '~/constants/enum'
+import { MediaTypeQuery, PeopleFollow } from '~/constants/enum'
 import { SEARCH_MESSAGE } from '~/constants/messages'
 import { SearchQuery } from '~/models/request/Search.request'
 import searchService from '~/services/search.services'
@@ -14,7 +14,7 @@ export const searchController = async (req: Request<ParamsDictionary, any, Searc
     page,
     content: req.query.content as string,
     media_type: req.query.media_type as MediaTypeQuery,
-    people_follow: req.query.people_follow as string,
+    people_follow: req.query.people_follow as PeopleFollow,
     user_id: req.decoded_authorization?.user_id as string
   })
 

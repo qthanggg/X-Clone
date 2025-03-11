@@ -114,5 +114,7 @@ export const LIKE_MESSAGE = {
   UNLIKE_SUCCESS: 'Unlike success'
 } as const
 export const SEARCH_MESSAGE = {
-  SEARCH_SUCCESS: 'Search success'
+  SEARCH_SUCCESS: 'Search success',
+  CONTENT_MUST_BE_A_STRING: 'Content must be a string',
+  PEOPLE_FOLLOW: 'People follow must be 0 or 1'
 } as const

@@ -35,3 +35,7 @@ export enum TweetAudience {
   Public,
   TwitterCircle
 }
+export enum PeopleFollow {
+  Anyone = '0',
+  Following = '1'
+}
