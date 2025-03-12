@@ -12,7 +12,7 @@ export const uploadImgController = async (req: Request, res: Response, next: Nex
   const url = await mediasService.uploadImg(req)
   res.json({
     message: USER_MESSAGES.UPLOAD_SUCCESS,
-    url
+    result: url
   })
 }
 export const serveImgController = (req: Request, res: Response, next: NextFunction) => {

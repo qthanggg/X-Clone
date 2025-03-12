@@ -1,22 +1,7 @@
 import nodemailer from 'nodemailer'
+import { ForgotPasswordEmailParams, SendEmailOptions, VerifyEmailParams } from '~/models/request/email.request'
 import { config } from 'dotenv'
 config()
-
-interface SendEmailOptions {
-  to: string
-  subject: string
-  html: string
-}
-
-interface VerifyEmailParams {
-  to: string
-  verifyToken: string
-}
-
-interface ForgotPasswordEmailParams {
-  to: string
-  resetToken: string
-}
 
 class EmailService {
   private transporter: nodemailer.Transporter

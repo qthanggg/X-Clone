@@ -5,6 +5,7 @@ import {
   uploadVideoHLSController,
   videoStatusController
 } from '~/controllers/medias.controllers.js'
+import { upload } from '~/middlewares/upload.middleware'
 import { accessTokenValidator, verifyUserValidator } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 const mediaRouter = Router()
@@ -15,7 +16,13 @@ const mediaRouter = Router()
  * Body: { Authozation: Bearer <access_token> }
  * Body: Image schema
  */
-mediaRouter.post('/upload-img', accessTokenValidator, verifyUserValidator, wrapRequestHandler(uploadImgController))
+mediaRouter.post(
+  '/upload-img',
+  accessTokenValidator,
+  verifyUserValidator,
+  upload.single('image'),
+  wrapRequestHandler(uploadImgController)
+)
 /**
  * Description: Upload video
  * Path: /upload-video
@@ -23,11 +30,18 @@ mediaRouter.post('/upload-img', accessTokenValidator, verifyUserValidator, wrapR
  * Body: { Authozation: Bearer <access_token> }
  * Body: Video schema
  */
-mediaRouter.post('/upload-video', accessTokenValidator, verifyUserValidator, wrapRequestHandler(uploadVideoController))
+mediaRouter.post(
+  '/upload-video',
+  accessTokenValidator,
+  verifyUserValidator,
+  upload.array('video', 1),
+  wrapRequestHandler(uploadVideoController)
+)
 mediaRouter.post(
   '/upload-video-hls',
   accessTokenValidator,
   verifyUserValidator,
+  upload.array('video', 1),
   wrapRequestHandler(uploadVideoHLSController)
 )
 /**

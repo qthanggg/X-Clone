@@ -2,7 +2,7 @@ import { uploadImgController } from '../controllers/medias.controllers.js'
 import { Request } from 'express'
 import path from 'path'
 import sharp from 'sharp'
-import { UPLOAD_IMG_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
+import { UPLOAD_IMG_DIR, UPLOAD_VIDEO_DIR, UPLOAD_IMG_TEMP_DIR } from '~/constants/dir'
 import { getNameFromFullName, hanldeUploadImg, hanldeUploadVideo } from '~/utils/file'
 import fs from 'fs'
 import fsPromise from 'fs/promises'
@@ -13,6 +13,8 @@ import { Media } from '~/models/Other'
 import { encodeHLSWithMultipleVideoStreams } from '~/utils/video.js'
 import VideoStatus from '~/models/schemas/VideoStatus.schema.js'
 import databaseService from '~/services/database.services.js'
+import cloudinary from '~/utils/cloudinary.js'
+import { uploadFileToCloudinary, uploadVideoToCloudinary } from '~/utils/cloudinary'
 config()
 class Queu {
   items: string[]
@@ -102,59 +104,67 @@ class Queu {
 const queue = new Queu()
 class MediasService {
   async uploadImg(req: Request) {
-    const files = await hanldeUploadImg(req)
-    const result: Media[] = await Promise.all(
-      files.map(async (file) => {
-        const newName = getNameFromFullName(file.newFilename)
-        const newPath = path.resolve(UPLOAD_IMG_DIR, `${newName}.jpg`)
-        await sharp(file.filepath).jpeg().toFile(newPath)
-        fs.unlinkSync(file.filepath)
+    const file = req.file as Express.Multer.File
+    const newName = file.filename.split('.')[0] + '.jpg'
+    const newPath = path.resolve(UPLOAD_IMG_TEMP_DIR, newName)
 
-        return {
-          url: isProduction
-            ? `${process.env.HOST}/static/image/${newName}.jpg`
-            : `http://localhost:4000/static/image/${newName}.jpg`,
-          type: MediaType.Image
-        }
-      })
-    )
-    return result
+    // Convert and optimize image
+    await sharp(file.path).jpeg().toFile(newPath)
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(newPath, {
+      folder: 'twitter/images',
+      resource_type: 'image'
+    })
+
+    // Clean up temp files
+    fs.unlinkSync(file.path)
+    fs.unlinkSync(newPath)
+
+    return result.secure_url
   }
   async uploadVideo(req: Request) {
-    const files = await hanldeUploadVideo(req)
-    const { filepath, newFilename } = files[0]
+    const files = req.files as Express.Multer.File[]
+    const result: Media[] = []
 
-    // Create video directory if not exists
-    const videoDir = path.resolve(UPLOAD_VIDEO_DIR)
-    if (!fs.existsSync(videoDir)) {
-      fs.mkdirSync(videoDir, { recursive: true })
+    for (const file of files) {
+      // Upload to Cloudinary
+      const response = await uploadVideoToCloudinary(file.path)
+
+      // Add to result array
+      result.push({
+        url: response.secure_url,
+        type: MediaType.Video
+      })
+
+      // Cleanup temp file
+      fs.unlinkSync(file.path)
     }
 
-    // Move file to correct location
-    const newPath = path.resolve(UPLOAD_VIDEO_DIR, newFilename)
-    fs.renameSync(filepath, newPath)
-
-    return {
-      url: isProduction
-        ? `${process.env.HOST}/static/video-stream/${newFilename}`
-        : `http://localhost:4000/static/video-stream/${newFilename}`,
-      type: MediaType.Video
-    }
+    return result
   }
   async uploadVideoHLS(req: Request) {
-    const files = await hanldeUploadVideo(req)
-    const result: Media[] = await Promise.all(
-      files.map(async (file) => {
-        const newName = getNameFromFullName(file.newFilename)
-        queue.enqueu(file.filepath)
-        return {
-          url: isProduction
-            ? `${process.env.HOST}/static/video-hls/${newName}.m3u8`
-            : `http://localhost:4000/static/video-hls/${newName}.m3u8`,
-          type: MediaType.HLS
-        }
+    const files = req.files as Express.Multer.File[]
+    const result: Media[] = []
+
+    for (const file of files) {
+      // Upload to Cloudinary with streaming profile
+      const response = await uploadVideoToCloudinary(file.path, {
+        resource_type: 'video',
+        eager: [{ streaming_profile: 'hls_1080p', format: 'm3u8' }],
+        eager_async: true
       })
-    )
+
+      // Add HLS URL to result
+      result.push({
+        url: response.eager[0].secure_url, // HLS stream URL
+        type: MediaType.HLS
+      })
+
+      // Cleanup temp file
+      fs.unlinkSync(file.path)
+    }
+
     return result
   }
   async getVideoStatus(id: string) {
