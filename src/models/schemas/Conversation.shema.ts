@@ -2,16 +2,16 @@ import { ObjectId } from 'mongodb'
 
 interface ConversationType {
   _id?: ObjectId
-  sender_id: string
-  receiver_id: string
+  sender_id: ObjectId
+  receiver_id: ObjectId
   content: string
   create_at?: Date
   updated_at?: Date
 }
 export default class Conversation {
   _id: ObjectId
-  sender_id: string
-  receiver_id: string
+  sender_id: ObjectId
+  receiver_id: ObjectId
   content: string
   create_at: Date
   updated_at: Date

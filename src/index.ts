@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
 import express from 'express'
 import cors from 'cors'
@@ -15,6 +16,7 @@ import searchRouter from '~/routes/search.routers'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import Conversation from '~/models/schemas/Conversation.shema'
+import conversationRouter from '~/routes/conversation.routers'
 // import '~/utils/fake'
 config()
 const app = express()
@@ -38,7 +40,7 @@ app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarkRouter)
 app.use('/like', likeRouter)
 app.use('/search', searchRouter)
-
+app.use('/conversation', conversationRouter)
 // app.use('/medias', express.static(UPLOAD_IMG_DIR))
 app.use('/static', staticRouter)
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
@@ -71,8 +73,8 @@ io.on('connection', (socket) => {
     }
     await databaseService.conversation.insertOne(
       new Conversation({
-        sender_id: data.form,
-        receiver_id: data.to,
+        sender_id: new ObjectId(data.form),
+        receiver_id: new ObjectId(data.to),
         content: data.content
       })
     )
