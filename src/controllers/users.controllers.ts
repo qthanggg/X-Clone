@@ -163,7 +163,7 @@ export const getMeController = async (req: Request, res: Response, next: NextFun
   const { user_id } = req.decoded_authorization as TokenPayload
   console.log('user_id', user_id)
   const user = await usersService.getUserProfile(user_id)
-  console.log('user', user)
+  //console.log('user', user)
 
   res.json({ message: USER_MESSAGES.GET_ME_SUCCESS, result: user })
 }
@@ -174,7 +174,7 @@ export const getUserProfileController = async (
   next: NextFunction
 ) => {
   const { username } = req.params
-  const user = await usersService.getUserProfile(username)
+  const user = await usersService.getUserProfileByName(username)
   res.json({ message: USER_MESSAGES.GET_PROFILE_SUCCESS, result: user })
 }
 // update me
