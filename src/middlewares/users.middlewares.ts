@@ -14,6 +14,7 @@ import { TokenType, UserVerifyStatus } from '~/constants/enum'
 import { ObjectId } from 'mongodb'
 import { TokenPayload } from '~/models/request/User.request'
 import { REGEX_USERNAME } from '~/constants/regex'
+import { verifyAcessToken } from '~/middlewares/common.middleware'
 
 const passswordSchema: ParamSchema = {
   notEmpty: {
@@ -230,25 +231,7 @@ export const accessTokenValidator = validate(
         custom: {
           options: async (value: string, { req }) => {
             const access_token = (value || '').split(' ')[1]
-            if (!access_token) {
-              throw new ErrorWithStatus({
-                message: USER_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
-            }
-            try {
-              const decoded_authorization = await verifyToken({
-                token: access_token,
-                secretOrPublicKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
-              })
-              ;(req as Request).decoded_authorization = decoded_authorization
-              return true
-            } catch (error) {
-              throw new ErrorWithStatus({
-                message: capitalize((error as JsonWebTokenError).message),
-                status: HTTP_STATUS.UNAUTHORIZED
-              })
-            }
+            return await verifyAcessToken(access_token, req as Request)
           }
         }
       }
@@ -537,3 +520,11 @@ export const isUserLoginValidator = (middleware: (req: Request, res: Response, n
     next()
   }
 }
+export const getConversationValidator = validate(
+  checkSchema(
+    {
+      receiver_id: userIdSchema
+    },
+    ['params']
+  )
+)

@@ -118,3 +118,6 @@ export const SEARCH_MESSAGE = {
   CONTENT_MUST_BE_A_STRING: 'Content must be a string',
   PEOPLE_FOLLOW: 'People follow must be 0 or 1'
 } as const
+export const ERROR_MESSAGES = {
+  UNAUTHORIZED: 'Unauthorized'
+} as const
