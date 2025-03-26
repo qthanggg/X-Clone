@@ -15,7 +15,9 @@ import searchRouter from '~/routes/search.routers'
 import { createServer } from 'http'
 import conversationRouter from '~/routes/conversation.routers'
 import initSocket from '~/utils/socket'
-
+import YAML from 'yamljs'
+import path from 'path'
+import swaggerUi from 'swagger-ui-express'
 // import '~/utils/fake'
 config()
 const app = express()
@@ -43,6 +45,13 @@ app.use('/conversation', conversationRouter)
 // app.use('/medias', express.static(UPLOAD_IMG_DIR))
 app.use('/static', staticRouter)
 app.use('/static/video', express.static(UPLOAD_VIDEO_DIR))
+
+// Load Swagger document
+const swaggerDocument = YAML.load(path.resolve('main.yaml'))
+
+// Setup Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+
 app.use(defaultErrorHandler)
 initSocket(httpServer)
 

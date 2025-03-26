@@ -1,0 +1,145 @@
+openapi: 3.0.0
+info:
+  title: Twitter Clone API
+  version: 1.0.0
+  description: API documentation for Twitter Clone
+
+servers:
+  - url: http://localhost:4000
+    description: Development server
+
+paths:
+  /users/login:
+    post:
+      tags:
+        - Auth
+      summary: Login user
+      description: Đăng nhập vào hệ thống
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: Password123!
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  result:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                      refresh_token:
+                        type: string
+        '401':
+          description: Invalid credentials
+
+  /users/register:
+    post:
+      tags:
+        - Auth
+      summary: Đăng ký
+      description: Đăng ký tài khoản mới
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: Password123!
+                confirm_password:
+                  type: string
+                  example: Password123!
+                date_of_birth:
+                  type: string
+                  format: date
+                  example: "2000-01-01"
+              required:
+                - email
+                - password
+                - confirm_password
+                - date_of_birth
+      responses:
+        '201':
+          description: Đăng ký thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Register successfully
+
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: Get current user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Get profile successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  result:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      username:
+                        type: string
+        '401':
+          description: Unauthorized
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+tags:
+  - name: Auth
+    description: Authentication endpoints
+  - name: Users
+    description: User management endpoints
