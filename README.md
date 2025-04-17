@@ -14,7 +14,7 @@ HLS Streaming Video (sử dụng ffmpeg) => Áp dụng được cho các dự á
 
 Websocket (sử dụng Socket.io) => Áp dụng được cho các dự án chat, game realtime, ...
 
-Kiến thức về AWS (S3, SES) => Dùng để upload file, gửi email ( Ở bài này thì tôi sẽ dùng option free là https://cloudinary.com/ vì lý do tài chính nhưng tôi vẫn biết cách dùng và kiến thức về AWS, cái Cloudinary này nó cũng khá tương tự Aws nên tôi mới quyết định dùng ) 
+Kiến thức về AWS (S3, SES) => Dùng để upload file, gửi email ( Ở bài này thì tôi sẽ dùng option free là https://cloudinary.com/ vì lý do tài chính nhưng tôi vẫn biết cách dùng và kiến thức về AWS, cái Cloudinary này nó cũng khá tương tự Aws nên tôi mới quyết định dùng, còn về gửi mail thì ở đây tôi dùng thư viện nodemailer để có option free, nó cũng tương tự flow Aws ) 
 
 Kiến thức dùng tool Postman để test API (thiết lập hệ thống tự động hóa flow test API, rất ít người chia sẻ về cái này)
 
